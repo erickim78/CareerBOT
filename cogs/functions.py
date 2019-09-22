@@ -153,12 +153,12 @@ class functions( commands.Cog ):
         d_format = "%m/%d/%y"
         if totalnum == 0:
             perday = "N/A"
-        elif datetime.strptime( date, d_format ) - datetime.strptime( firstdate, d_format ) == 0:
+        elif (datetime.strptime( date, d_format ) - datetime.strptime( firstdate, d_format )).days == 0:
             perday = totalnum
         else:
             last = datetime.strptime( date, d_format )
             first = datetime.strptime( firstdate, d_format )
-            perday = str( round( (last - first).days/totalnum, 2 ) )
+            perday = str( round( totalnum/( (last - first).days +1 ), 2 ) )
 
         embed=discord.Embed(color=0xabd8fc)
         embed.add_field(name="THE SPEEDWAGON FOUNDATION", value=f'**\nUSERNAME: {username.mention}**\nApplications Submitted: {totalnum}\nLast Submitted: {date}\nApps per Day: {perday}', inline=True)
