@@ -142,10 +142,11 @@ class functions( commands.Cog ):
         joblist = cursor.fetchall()
         database.commit()
 
+        today = datetime.today()
         totalnum = 0
-        date = firstdate = perday = "N/A"
+        lastdate = firstdate = perday = "N/A"
         for item in joblist:
-            date = item[3]
+            lastdate = item[3]
             if totalnum == 0:
                 firstdate = item[3]
             totalnum += 1
@@ -153,14 +154,13 @@ class functions( commands.Cog ):
         d_format = "%m/%d/%y"
         if totalnum == 0:
             perday = "N/A"
-        elif (datetime.strptime( date, d_format ) - datetime.strptime( firstdate, d_format )).days == 0:
+        elif (datetime.strptime( lastdate, d_format ) - datetime.strptime( firstdate, d_format )).days == 0:
             perday = totalnum
         else:
-            last = datetime.strptime( date, d_format )
             first = datetime.strptime( firstdate, d_format )
-            perday = str( round( totalnum/( (last - first).days +1 ), 2 ) )
+            perday = str( round( totalnum/( (today - first).days +1 ), 2 ) )
 
         embed=discord.Embed(color=0xabd8fc)
-        embed.add_field(name="THE SPEEDWAGON FOUNDATION", value=f'**\nUSERNAME: {username.mention}**\nApplications Submitted: {totalnum}\nLast Submitted: {date}\nApps per Day: {perday}', inline=True)
+        embed.add_field(name="THE SPEEDWAGON FOUNDATION", value=f'**\nUSERNAME: {username.mention}**\nApplications Submitted: {totalnum}\nLast Submitted: {lastdate}\nApps per Day: {perday}', inline=True)
         await ctx.send(embed=embed)
                             
