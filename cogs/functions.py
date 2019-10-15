@@ -163,4 +163,34 @@ class functions( commands.Cog ):
         embed=discord.Embed(color=0xabd8fc)
         embed.add_field(name="THE SPEEDWAGON FOUNDATION", value=f'**\nUSERNAME: {username.mention}**\nApplications Submitted: {totalnum}\nLast Submitted: {lastdate}\nApps per Day: {perday}', inline=True)
         await ctx.send(embed=embed)
-                            
+
+	
+    @commands.command( pass_context = True )
+    async def list( self, ctx ):
+	if( len(ctx.message.mentions) == 0 ):
+	    username = ctx.message.author
+	else:
+	    username = ctx.message.mentions[0]
+
+        tablename = str(username).replace('#', '')
+
+	try:
+	    cursor.execute(f'SELECT * FROM {tablename} )
+	except:
+	    embed=discord.Embed(color=0xabd8fc)
+            embed.add_field(name="TABLE NOT FOUND", value=f'**Please use \'.init\'**', inline=False)
+            await ctx.send(embed=embed)
+            return
+
+	joblist = cursor.fetchall()
+	databse.commit()
+
+	embedval = ""
+	count = 1
+	for item in joblist:
+	    embedval = embedval + f'{count}) {item[1]}, {item[2]}\n'
+
+	embed = discord.Embed(color=0xabd8fc)
+	embed.add_field(name = f"Applications for {username.mention}", value = embedval, inline = False)
+	await ctx.send(embed=embed)
+	return
