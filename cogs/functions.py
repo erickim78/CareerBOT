@@ -166,31 +166,73 @@ class functions( commands.Cog ):
 
 	
     @commands.command( pass_context = True )
-    async def list( self, ctx ):
-	if( len(ctx.message.mentions) == 0 ):
-	    username = ctx.message.author
-	else:
-	    username = ctx.message.mentions[0]
+    async def listall( self, ctx ):
+        if( len(ctx.message.mentions) == 0 ):
+            username = ctx.message.author
+        else:
+            username = ctx.message.mentions[0]
 
-        tablename = str(username).replace('#', '')
+        tablename = str(username).replace('#','')
 
-	try:
-	    cursor.execute(f'SELECT * FROM {tablename} )
-	except:
-	    embed=discord.Embed(color=0xabd8fc)
+        try:
+            cursor.execute(f'SELECT * FROM {tablename}')
+        except:
+            embed=discord.Embed(color=0xabd8fc)
             embed.add_field(name="TABLE NOT FOUND", value=f'**Please use \'.init\'**', inline=False)
             await ctx.send(embed=embed)
             return
 
-	joblist = cursor.fetchall()
-	databse.commit()
+        joblist = cursor.fetchall()
+        database.commit()
 
-	embedval = ""
-	count = 1
-	for item in joblist:
-	    embedval = embedval + f'{count}) {item[1]}, {item[2]}\n'
+        embedval = ""
+        jobcount = formcount = 1
+        
+        for item in joblist:
+            if( len(embedval) < 900 ):
+                embedval = embedval + f'{jobcount}) {item[1]}, {item[2]}\n'
+            else:
+                embed = discord.Embed(color=0xabd8fc)
+                embed.add_field(name = f'All Applications for: {username} ({formcount})', value = embedval, inline = False)
+                await ctx.send(embed=embed)
+                embedval = "" + f'{jobcount}) {item[1]}, {item[2]}\n'
+                formcount = formcount + 1
 
-	embed = discord.Embed(color=0xabd8fc)
-	embed.add_field(name = f"Applications for {username.mention}", value = embedval, inline = False)
-	await ctx.send(embed=embed)
-	return
+            jobcount = jobcount + 1
+    
+        embed = discord.Embed(color=0xabd8fc)
+        embed.add_field(name = f'All Applications for: {username} ({formcount})', value = embedval, inline = False)
+        await ctx.send(embed=embed)
+
+    @commands.command( pass_context = True)
+    async def recent( self, ctx):
+        if( len(ctx.message.mentions) == 0 ):
+            username = ctx.message.author
+        else:
+            username = ctx.message.mentions[0]
+
+        tablename = str(username).replace('#','')
+
+        try:
+            cursor.execute(f'SELECT * FROM {tablename}')
+        except:
+            embed=discord.Embed(color=0xabd8fc)
+            embed.add_field(name="TABLE NOT FOUND", value=f'**Please use \'.init\'**', inline=False)
+            await ctx.send(embed=embed)
+            return
+
+        joblist = cursor.fetchall()
+        database.commit()
+
+        embedval = ""
+        count = 1
+
+        for item in reversed(joblist):
+            if( count < 11 ):
+                embedval = embedval + f'{count}) {item[1]}, {item[2]} | **{item[3]}**\n'
+            count = count + 1
+
+        embed = discord.Embed(color=0xabd8fc)
+        embed.add_field(name = f'Recent Applications for: {username}', value = embedval, inline = False)
+        await ctx.send(embed=embed)
+                
